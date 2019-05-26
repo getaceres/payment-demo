@@ -8,6 +8,7 @@ import (
 	"github.com/getaceres/payment-demo/payment"
 	"github.com/getaceres/payment-demo/persistence"
 	"github.com/gorilla/mux"
+	"github.com/imdario/mergo"
 )
 
 const (
@@ -21,36 +22,13 @@ type FrontendV1 struct {
 
 func (a *FrontendV1) InitializeRoutes() {
 	a.Router.HandleFunc(basePath+"/payments", a.AddPayment).Methods("POST")
-	a.Router.HandleFunc(basePath+"/payments", a.UpdatePayment).Methods("PUT")
 	a.Router.HandleFunc(basePath+"/payments", a.GetPaymentList).Methods("GET")
+	a.Router.HandleFunc(basePath+"/payments/{paymentID}", a.UpdatePayment).Methods("PUT")
 	a.Router.HandleFunc(basePath+"/payments/{paymentID}", a.DeletePayment).Methods("DELETE")
 	a.Router.HandleFunc(basePath+"/payments/{paymentID}", a.GetPayment).Methods("GET")
 }
 
-func (a *FrontendV1) addOrUpdate(w http.ResponseWriter, r *http.Request, updateFunction func(payment.Payment) (payment.Payment, error), successCode int) {
-	var pay payment.Payment
-	err := ReadBody(r.Body, &pay)
-	if err != nil {
-		RespondWithError(w, http.StatusBadRequest, fmt.Errorf("Error reading payment body: %s", err.Error()))
-		return
-	}
-
-	updated, err := updateFunction(pay)
-	if err != nil {
-		RespondWithError(w, GetPersistenceErrorCode(err), fmt.Errorf("Error saving payment: %s", err.Error()))
-		return
-	}
-
-	RespondWithJSON(w, successCode, PaymentResponse{
-		Data: updated,
-		Links: map[string]string{
-			"self": fmt.Sprintf("%s/%s", r.URL.String(), updated.ID),
-		},
-	})
-	return
-}
-
-func (a *FrontendV1) getOrDelete(w http.ResponseWriter, r *http.Request, function func(id string) (payment.Payment, error), verb string) {
+func (a *FrontendV1) doPaymentOperation(w http.ResponseWriter, r *http.Request, function func(id string) (payment.Payment, error), verb string) {
 	paymentID, ok := mux.Vars(r)["paymentID"]
 	if !ok {
 		RespondWithError(w, http.StatusBadRequest, errors.New("Payment identifier is mandatory for this operation"))
@@ -73,19 +51,57 @@ func (a *FrontendV1) getOrDelete(w http.ResponseWriter, r *http.Request, functio
 }
 
 func (a *FrontendV1) AddPayment(w http.ResponseWriter, r *http.Request) {
-	a.addOrUpdate(w, r, a.PaymentRepository.AddPayment, http.StatusCreated)
+	var pay payment.Payment
+	err := ReadBody(r.Body, &pay)
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, fmt.Errorf("Error reading payment body: %s", err.Error()))
+		return
+	}
+
+	updated, err := a.PaymentRepository.AddPayment(pay)
+	if err != nil {
+		RespondWithError(w, GetPersistenceErrorCode(err), fmt.Errorf("Error saving payment: %s", err.Error()))
+		return
+	}
+
+	RespondWithJSON(w, http.StatusCreated, PaymentResponse{
+		Data: updated,
+		Links: map[string]string{
+			"self": fmt.Sprintf("%s/%s", r.URL.String(), updated.ID),
+		},
+	})
+	return
 }
 
 func (a *FrontendV1) UpdatePayment(w http.ResponseWriter, r *http.Request) {
-	a.addOrUpdate(w, r, a.PaymentRepository.UpdatePayment, http.StatusOK)
+	a.doPaymentOperation(w, r, func(id string) (payment.Payment, error) {
+		existing, err := a.PaymentRepository.GetPayment(id)
+		if err != nil {
+			return existing, err
+		}
+
+		var partial payment.Payment
+		err = ReadBody(r.Body, &partial)
+		if err != nil {
+			return existing, fmt.Errorf("Error reading partial update: %s", err.Error())
+		}
+
+		err = mergo.Merge(&partial, existing)
+		if err != nil {
+			return existing, fmt.Errorf("Error applying new values to existing payment %s: %s", id, err.Error())
+		}
+
+		partial.ID = id
+		return a.PaymentRepository.UpdatePayment(partial)
+	}, "updating")
 }
 
 func (a *FrontendV1) DeletePayment(w http.ResponseWriter, r *http.Request) {
-	a.getOrDelete(w, r, a.PaymentRepository.DeletePayment, "deleting")
+	a.doPaymentOperation(w, r, a.PaymentRepository.DeletePayment, "deleting")
 }
 
 func (a *FrontendV1) GetPayment(w http.ResponseWriter, r *http.Request) {
-	a.getOrDelete(w, r, a.PaymentRepository.GetPayment, "getting")
+	a.doPaymentOperation(w, r, a.PaymentRepository.GetPayment, "getting")
 }
 
 func (a *FrontendV1) GetPaymentList(w http.ResponseWriter, r *http.Request) {

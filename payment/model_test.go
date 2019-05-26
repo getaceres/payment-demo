@@ -34,7 +34,7 @@ func TestPaymensUnmarshal(t *testing.T) {
 }
 
 func TestPaymentSerialization(t *testing.T) {
-	testPayment, err := GetDefaultTestPayment()
+	testPayment, err := GetDefaultTestPayment("../test_resources")
 	if err != nil {
 		t.Fatalf("Error getting test payment: %s", err.Error())
 	}

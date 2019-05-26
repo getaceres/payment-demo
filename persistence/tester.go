@@ -9,16 +9,16 @@ import (
 )
 
 const (
-	testResourcesPath   = "../test_resources"
 	testPaymentFileName = "test_payment.json"
 )
 
 type PaymentRepositoryTester struct {
-	Repository PaymentRepository
+	Repository    PaymentRepository
+	ResourcesPath string
 }
 
 func (p PaymentRepositoryTester) getDefaultPayment(t *testing.T) payment.Payment {
-	payment, err := payment.GetDefaultTestPayment()
+	payment, err := payment.GetDefaultTestPayment(p.ResourcesPath)
 	if err != nil {
 		t.Fatalf("Error getting default payment: %s", err.Error())
 	}

@@ -4,6 +4,7 @@ import "testing"
 
 var tester = PaymentRepositoryTester{
 	Repository: NewMemoryPaymentRepository(),
+	ResourcesPath: "../test_resources",
 }
 
 func TestAdd(t *testing.T) {

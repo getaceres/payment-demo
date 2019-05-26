@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 }
 
 func getDefaultPayment(t *testing.T) payment.Payment {
-	payment, err := payment.GetDefaultTestPayment()
+	payment, err := payment.GetDefaultTestPayment("../test_resources")
 	if err != nil {
 		t.Fatalf("Error getting default payment: %s", err.Error())
 	}
@@ -122,12 +122,48 @@ func TestAdd(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	pay := addPayment(t)
 
-	pay.Version = 2
-	result := executeRequest(t, "PUT", "/v1/payments", pay)
+	update := payment.Payment{
+		ID:      uuid.New().String(),
+		Version: 2,
+		Attributes: payment.PaymentAttributesType{
+			Amount: "110",
+			ChargesInformation: payment.PaymentChargesInformationType{
+				SenderCharges: []payment.PaymentAmountType{
+					payment.PaymentAmountType{
+						Amount:   "10",
+						Currency: "USD",
+					},
+				},
+			},
+		},
+	}
+
+	result := executeRequest(t, "PUT", fmt.Sprintf("/v1/payments/%s", pay.ID), update)
 	returned := checkPaymentResponse(t, result, http.StatusOK)
 
 	if pay.ID != returned.ID {
 		t.Fatal("Input and output identifiers are not the same")
+	}
+
+	if returned.Version != 2 {
+		t.Fatalf("Expected update of version to 2 but found %d", pay.Version)
+	}
+
+	if returned.Attributes.Amount != "110" {
+		t.Fatalf("Expected update of attributes.ammount to 110 but found %s", pay.Attributes.Amount)
+	}
+
+	if len(returned.Attributes.ChargesInformation.SenderCharges) != 1 {
+		t.Fatalf("Expected length of attributes.charges_information.sender_charges to be 1 but found %s", returned.Attributes.ChargesInformation.SenderCharges)
+	}
+
+	pay.Version = 2
+	pay.Attributes.Amount = "110"
+	pay.Attributes.ChargesInformation.SenderCharges = []payment.PaymentAmountType{
+		payment.PaymentAmountType{
+			Amount:   "10",
+			Currency: "USD",
+		},
 	}
 
 	if !cmp.Equal(pay, returned) {
@@ -135,8 +171,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	id := uuid.New().String()
-	pay.ID = id
-	result = executeRequest(t, "PUT", "/v1/payments", pay)
+	result = executeRequest(t, "PUT", fmt.Sprintf("/v1/payments/%s", id), pay)
 	checkResponseCode(t, result, http.StatusNotFound)
 }
 

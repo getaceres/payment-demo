@@ -7,13 +7,12 @@ import (
 )
 
 const (
-	TestResourcesPath   = "../test_resources"
 	TestPaymentFileName = "test_payment.json"
 )
 
-func GetTestPayment(filename string) (Payment, error) {
+func GetTestPayment(resourcesPath, filename string) (Payment, error) {
 	var testPayment Payment
-	testPaymentFilePath := fmt.Sprintf("%s/%s", TestResourcesPath, filename)
+	testPaymentFilePath := fmt.Sprintf("%s/%s", resourcesPath, filename)
 	testPaymentFileContent, err := ioutil.ReadFile(testPaymentFilePath)
 	if err != nil {
 		return testPayment, err
@@ -27,6 +26,6 @@ func GetTestPayment(filename string) (Payment, error) {
 	return testPayment, nil
 }
 
-func GetDefaultTestPayment() (Payment, error) {
-	return GetTestPayment(TestPaymentFileName)
+func GetDefaultTestPayment(resourcesPath string) (Payment, error) {
+	return GetTestPayment(resourcesPath, TestPaymentFileName)
 }
