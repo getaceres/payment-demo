@@ -72,6 +72,7 @@ func (a *FrontendV1) doPaymentOperation(w http.ResponseWriter, r *http.Request, 
 //       "$ref": "#/definitions/PaymentResponse"
 //   500:
 //     description: Unexpected error
+//     type: string
 func (a *FrontendV1) AddPayment(w http.ResponseWriter, r *http.Request) {
 	var pay payment.Payment
 	err := ReadBody(r.Body, &pay)
@@ -122,8 +123,10 @@ func (a *FrontendV1) AddPayment(w http.ResponseWriter, r *http.Request) {
 //       "$ref": "#/definitions/PaymentResponse"
 //   500:
 //     description: Unexpected error
+//     type: string
 //   404:
 //     description: Payment not found
+//     type: string
 func (a *FrontendV1) UpdatePayment(w http.ResponseWriter, r *http.Request) {
 	a.doPaymentOperation(w, r, func(id string) (payment.Payment, error) {
 		existing, err := a.PaymentRepository.GetPayment(id)
@@ -168,8 +171,10 @@ func (a *FrontendV1) UpdatePayment(w http.ResponseWriter, r *http.Request) {
 //       "$ref": "#/definitions/PaymentResponse"
 //   500:
 //     description: Unexpected error
+//     type: string
 //   404:
 //     description: Payment not found
+//     type: string
 func (a *FrontendV1) DeletePayment(w http.ResponseWriter, r *http.Request) {
 	a.doPaymentOperation(w, r, a.PaymentRepository.DeletePayment, "deleting")
 }
@@ -195,8 +200,10 @@ func (a *FrontendV1) DeletePayment(w http.ResponseWriter, r *http.Request) {
 //       "$ref": "#/definitions/PaymentResponse"
 //   500:
 //     description: Unexpected error
+//     type: string
 //   404:
 //     description: Payment not found
+//     type: string
 func (a *FrontendV1) GetPayment(w http.ResponseWriter, r *http.Request) {
 	a.doPaymentOperation(w, r, a.PaymentRepository.GetPayment, "getting")
 }
@@ -218,6 +225,7 @@ func (a *FrontendV1) GetPayment(w http.ResponseWriter, r *http.Request) {
 //         "$ref": "#/definitions/PaymentListResponse"
 //   500:
 //     description: Unexpected error
+//     type: string
 func (a *FrontendV1) GetPaymentList(w http.ResponseWriter, r *http.Request) {
 	payments, err := a.PaymentRepository.GetPayments(nil)
 	if err != nil {
