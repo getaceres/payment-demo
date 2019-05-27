@@ -53,9 +53,8 @@ func (a *FrontendV1) doPaymentOperation(w http.ResponseWriter, r *http.Request, 
 // AddPayment saves a new payment information into the database
 // swagger:operation POST /payments addPayment
 //
-// Adds the payment object passed in the operation body to the database
-//
 // ---
+// description: Saves a new payment information into the database
 // produces:
 // - application/json
 // - application/text
@@ -99,9 +98,8 @@ func (a *FrontendV1) AddPayment(w http.ResponseWriter, r *http.Request) {
 // UpdatePayment updates the information of a payment by providing a partial document that will be merged with the original one
 // swagger:operation PUT /payments/{paymentID} updatePayment
 //
-// Receives a partial Payment document with the fields that should be updated. It will be merged with the information already present.
-//
 // ---
+// description: Updates the information of a payment by providing a partial document that will be merged with the original one
 // produces:
 // - application/json
 // - application/text
@@ -152,9 +150,8 @@ func (a *FrontendV1) UpdatePayment(w http.ResponseWriter, r *http.Request) {
 // DeletePayment deletes the information of a payment given its identifier
 // swagger:operation DELETE /payments/{paymentID} deletePayment
 //
-// Receives the identifier of the payment to delete and returns the deleted document.
-//
 // ---
+// description: Deletes the information of a payment given its identifier
 // produces:
 // - application/json
 // - application/text
@@ -180,9 +177,8 @@ func (a *FrontendV1) DeletePayment(w http.ResponseWriter, r *http.Request) {
 // GetPayment retrieves the information of a payment given its identifier
 // swagger:operation GET /payments/{paymentID} getPayment
 //
-// Receives the identifier of the payment to delete and returns the information of the document document.
-//
 // ---
+// description: Retrieves the information of a payment given its identifier
 // produces:
 // - application/json
 // - application/text
@@ -208,9 +204,8 @@ func (a *FrontendV1) GetPayment(w http.ResponseWriter, r *http.Request) {
 // GetPaymentList retrieves a list with all the registered payments
 // swagger:operation GET /payments getPaymentList
 //
-// This implementation doesn't receive any extra parameter but in future implementations the list could be filtered with query parameters.
-//
 // ---
+// description: Retrieves a list with all the registered payments
 // produces:
 // - application/json
 // - application/text
