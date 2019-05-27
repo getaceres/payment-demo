@@ -1,5 +1,7 @@
 package payment
 
+// Payment contains payment information such as amount and currency, commisions, stakeholders information, etc.
+// swagger:model
 type Payment struct {
 	Type           string                `json:"type,omitempty"`
 	ID             string                `json:"id,omitempty"`
