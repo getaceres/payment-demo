@@ -1,0 +1,417 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Manages payment information",
+    "title": "Payment API implementation",
+    "version": "1.0"
+  },
+  "basePath": "/v1",
+  "paths": {
+    "/payments": {
+      "get": {
+        "description": "Retrieves a list with all the registered payments",
+        "produces": [
+          "application/json",
+          "application/text"
+        ],
+        "operationId": "getPaymentList",
+        "responses": {
+          "200": {
+            "description": "The list of registered payments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PaymentListResponse"
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "post": {
+        "description": "Saves a new payment information into the database",
+        "produces": [
+          "application/json",
+          "application/text"
+        ],
+        "operationId": "addPayment",
+        "parameters": [
+          {
+            "description": "The payment to add",
+            "name": "payment",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Payment"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The payment with an assigned identifier",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/payments/{paymentID}": {
+      "get": {
+        "description": "Retrieves the information of a payment given its identifier",
+        "produces": [
+          "application/json",
+          "application/text"
+        ],
+        "operationId": "getPayment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The identifier of the requiered payment",
+            "name": "paymentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The required payment",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "404": {
+            "description": "Payment not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the information of a payment by providing a partial document that will be merged with the original one",
+        "produces": [
+          "application/json",
+          "application/text"
+        ],
+        "operationId": "updatePayment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The identifier of the payment to update",
+            "name": "paymentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "A partial payment document with the fields to update",
+            "name": "payment",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Payment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated payment",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "404": {
+            "description": "Payment not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes the information of a payment given its identifier",
+        "produces": [
+          "application/json",
+          "application/text"
+        ],
+        "operationId": "deletePayment",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The identifier of the payment to update",
+            "name": "paymentID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted payment",
+            "schema": {
+              "$ref": "#/definitions/PaymentResponse"
+            }
+          },
+          "404": {
+            "description": "Payment not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Payment": {
+      "type": "object",
+      "title": "Payment contains payment information such as amount and currency, commisions, stakeholders information, etc.",
+      "properties": {
+        "attributes": {
+          "$ref": "#/definitions/PaymentAttributesType"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "organisation_id": {
+          "type": "string",
+          "x-go-name": "OrganisationID"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentAmountType": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "x-go-name": "Amount"
+        },
+        "currency": {
+          "type": "string",
+          "x-go-name": "Currency"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentAttributesType": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "x-go-name": "Amount"
+        },
+        "beneficiary_party": {
+          "$ref": "#/definitions/PaymentPartyType"
+        },
+        "charges_information": {
+          "$ref": "#/definitions/PaymentChargesInformationType"
+        },
+        "currency": {
+          "type": "string",
+          "x-go-name": "Currency"
+        },
+        "debtor_party": {
+          "$ref": "#/definitions/PaymentPartyType"
+        },
+        "end_to_end_reference": {
+          "type": "string",
+          "x-go-name": "EndToEndReference"
+        },
+        "fx": {
+          "$ref": "#/definitions/PaymentExchangeInformationType"
+        },
+        "numeric_reference": {
+          "type": "string",
+          "x-go-name": "NumericReference"
+        },
+        "payment_id": {
+          "type": "string",
+          "x-go-name": "PaymentID"
+        },
+        "payment_purpose": {
+          "type": "string",
+          "x-go-name": "PaymentPurpose"
+        },
+        "payment_scheme": {
+          "type": "string",
+          "x-go-name": "PaymentScheme"
+        },
+        "payment_type": {
+          "type": "string",
+          "x-go-name": "PaymentType"
+        },
+        "processing_date": {
+          "type": "string",
+          "x-go-name": "ProcessingDate"
+        },
+        "reference": {
+          "type": "string",
+          "x-go-name": "Reference"
+        },
+        "scheme_payment_sub_type": {
+          "type": "string",
+          "x-go-name": "SchemePaymentSubType"
+        },
+        "scheme_payment_type": {
+          "type": "string",
+          "x-go-name": "SchemePaymentType"
+        },
+        "sponsor_party": {
+          "$ref": "#/definitions/PaymentPartyType"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentChargesInformationType": {
+      "type": "object",
+      "properties": {
+        "bearer_code": {
+          "type": "string",
+          "x-go-name": "BearerCode"
+        },
+        "receiver_charges_amount": {
+          "type": "string",
+          "x-go-name": "ReceiverChargesAmount"
+        },
+        "receiver_charges_currency": {
+          "type": "string",
+          "x-go-name": "ReceiverChargesCurrency"
+        },
+        "sender_charges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentAmountType"
+          },
+          "x-go-name": "SenderCharges"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentExchangeInformationType": {
+      "type": "object",
+      "properties": {
+        "contract_reference": {
+          "type": "string",
+          "x-go-name": "ContractReference"
+        },
+        "exchange_rate": {
+          "type": "string",
+          "x-go-name": "ExchangeRate"
+        },
+        "original_amount": {
+          "type": "string",
+          "x-go-name": "OriginalAmount"
+        },
+        "original_currency": {
+          "type": "string",
+          "x-go-name": "OriginalCurrency"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentListResponse": {
+      "description": "PaymentListResponse is the response of a REST operation which returns a list of payments",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Payment"
+          },
+          "x-go-name": "Data"
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Links"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/frontend"
+    },
+    "PaymentPartyType": {
+      "type": "object",
+      "properties": {
+        "account_name": {
+          "type": "string",
+          "x-go-name": "AccountName"
+        },
+        "account_number": {
+          "type": "string",
+          "x-go-name": "AccountNumber"
+        },
+        "account_number_code": {
+          "type": "string",
+          "x-go-name": "AccountNumberCode"
+        },
+        "account_type": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AccountType"
+        },
+        "address": {
+          "type": "string",
+          "x-go-name": "Address"
+        },
+        "bank_id": {
+          "type": "string",
+          "x-go-name": "BankID"
+        },
+        "bank_id_code": {
+          "type": "string",
+          "x-go-name": "BankIDCode"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/payment"
+    },
+    "PaymentResponse": {
+      "description": "PaymentResponse is the response of a REST operation which returns a single payment",
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/Payment"
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "x-go-name": "Links"
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/frontend"
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "GetLinks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "x-go-package": "payment-demo/vendor/github.com/getaceres/payment-demo/frontend"
+    }
+  }
+}

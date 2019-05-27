@@ -1,0 +1,366 @@
+= Payment API implementation
+
+
+[[_overview]]
+== Overview
+Manages payment information
+
+
+=== Version information
+[%hardbreaks]
+__Version__ : 1.0
+
+
+=== URI scheme
+[%hardbreaks]
+__BasePath__ : /v1
+
+
+
+
+[[_paths]]
+== Paths
+
+[[_addpayment]]
+=== POST /payments
+
+==== Description
+Saves a new payment information into the database
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^9a,.^4a"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**payment** +
+__required__|The payment to add|<<_payment,Payment>>
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**201**|The payment with an assigned identifier|<<_paymentresponse,PaymentResponse>>
+|**500**|Unexpected error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `application/text`
+
+
+[[_getpaymentlist]]
+=== GET /payments
+
+==== Description
+Retrieves a list with all the registered payments
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|The list of registered payments|< <<_paymentlistresponse,PaymentListResponse>> > array
+|**500**|Unexpected error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `application/text`
+
+
+[[_getpayment]]
+=== GET /payments/{paymentID}
+
+==== Description
+Retrieves the information of a payment given its identifier
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^9a,.^4a"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**paymentID** +
+__required__|The identifier of the requiered payment|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|The required payment|<<_paymentresponse,PaymentResponse>>
+|**404**|Payment not found|No Content
+|**500**|Unexpected error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `application/text`
+
+
+[[_updatepayment]]
+=== PUT /payments/{paymentID}
+
+==== Description
+Updates the information of a payment by providing a partial document that will be merged with the original one
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^9a,.^4a"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**paymentID** +
+__required__|The identifier of the payment to update|string
+|**Body**|**payment** +
+__required__|A partial payment document with the fields to update|<<_payment,Payment>>
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|The updated payment|<<_paymentresponse,PaymentResponse>>
+|**404**|Payment not found|No Content
+|**500**|Unexpected error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `application/text`
+
+
+[[_deletepayment]]
+=== DELETE /payments/{paymentID}
+
+==== Description
+Deletes the information of a payment given its identifier
+
+
+==== Parameters
+
+[options="header", cols=".^2a,.^3a,.^9a,.^4a"]
+|===
+|Type|Name|Description|Schema
+|**Path**|**paymentID** +
+__required__|The identifier of the payment to update|string
+|===
+
+
+==== Responses
+
+[options="header", cols=".^2a,.^14a,.^4a"]
+|===
+|HTTP Code|Description|Schema
+|**200**|The deleted payment|<<_paymentresponse,PaymentResponse>>
+|**404**|Payment not found|No Content
+|**500**|Unexpected error|No Content
+|===
+
+
+==== Produces
+
+* `application/json`
+* `application/text`
+
+
+
+
+[[_definitions]]
+== Definitions
+
+[[_payment]]
+=== Payment
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**attributes** +
+__optional__|<<_paymentattributestype,PaymentAttributesType>>
+|**id** +
+__optional__|string
+|**organisation_id** +
+__optional__|string
+|**type** +
+__optional__|string
+|**version** +
+__optional__|integer (int64)
+|===
+
+
+[[_paymentamounttype]]
+=== PaymentAmountType
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**amount** +
+__optional__|string
+|**currency** +
+__optional__|string
+|===
+
+
+[[_paymentattributestype]]
+=== PaymentAttributesType
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**amount** +
+__optional__|string
+|**beneficiary_party** +
+__optional__|<<_paymentpartytype,PaymentPartyType>>
+|**charges_information** +
+__optional__|<<_paymentchargesinformationtype,PaymentChargesInformationType>>
+|**currency** +
+__optional__|string
+|**debtor_party** +
+__optional__|<<_paymentpartytype,PaymentPartyType>>
+|**end_to_end_reference** +
+__optional__|string
+|**fx** +
+__optional__|<<_paymentexchangeinformationtype,PaymentExchangeInformationType>>
+|**numeric_reference** +
+__optional__|string
+|**payment_id** +
+__optional__|string
+|**payment_purpose** +
+__optional__|string
+|**payment_scheme** +
+__optional__|string
+|**payment_type** +
+__optional__|string
+|**processing_date** +
+__optional__|string
+|**reference** +
+__optional__|string
+|**scheme_payment_sub_type** +
+__optional__|string
+|**scheme_payment_type** +
+__optional__|string
+|**sponsor_party** +
+__optional__|<<_paymentpartytype,PaymentPartyType>>
+|===
+
+
+[[_paymentchargesinformationtype]]
+=== PaymentChargesInformationType
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**bearer_code** +
+__optional__|string
+|**receiver_charges_amount** +
+__optional__|string
+|**receiver_charges_currency** +
+__optional__|string
+|**sender_charges** +
+__optional__|< <<_paymentamounttype,PaymentAmountType>> > array
+|===
+
+
+[[_paymentexchangeinformationtype]]
+=== PaymentExchangeInformationType
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**contract_reference** +
+__optional__|string
+|**exchange_rate** +
+__optional__|string
+|**original_amount** +
+__optional__|string
+|**original_currency** +
+__optional__|string
+|===
+
+
+[[_paymentlistresponse]]
+=== PaymentListResponse
+PaymentListResponse is the response of a REST operation which returns a list of payments
+
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**data** +
+__optional__|< <<_payment,Payment>> > array
+|**links** +
+__optional__|< string, string > map
+|===
+
+
+[[_paymentpartytype]]
+=== PaymentPartyType
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**account_name** +
+__optional__|string
+|**account_number** +
+__optional__|string
+|**account_number_code** +
+__optional__|string
+|**account_type** +
+__optional__|integer (int64)
+|**address** +
+__optional__|string
+|**bank_id** +
+__optional__|string
+|**bank_id_code** +
+__optional__|string
+|**name** +
+__optional__|string
+|===
+
+
+[[_paymentresponse]]
+=== PaymentResponse
+PaymentResponse is the response of a REST operation which returns a single payment
+
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**data** +
+__optional__|<<_payment,Payment>>
+|**links** +
+__optional__|< string, string > map
+|===
+
+
+[[_response]]
+=== Response
+
+[options="header", cols=".^3a,.^4a"]
+|===
+|Name|Schema
+|**GetLinks** +
+__optional__|< string, string > map
+|===
+
+
+
+
+
